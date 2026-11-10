@@ -3,7 +3,7 @@
 	"id": "smesharikiworld",
 	"version": "${version}",
 	"name": "SmesharikiWorldMod",
-	"description": "Типы мира: «Остров Смешариков» (рельеф по картам) и «Мир-океан».",
+	"description": "Ландшафт и отображение: типы мира «Остров Смешариков» и «Мир-океан», шейдерпак Iris, яркий свет неба и приглушение света для кат-сцен.",
 	"authors": ["bogdan"],
 	"license": "MIT",
 	"environment": "*",
@@ -11,6 +11,7 @@
 		"main": ["com.smeshariki.world.SmesharikiWorld"],
 		"client": ["com.smeshariki.world.SmesharikiWorldClient"]
 	},
+	"mixins": [{ "config": "smesharikiworld.mixins.json", "environment": "client" }],
 	"depends": {
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~26.2",
