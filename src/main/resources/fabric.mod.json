@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "smesharikiworld",
+	"version": "${version}",
+	"name": "SmesharikiWorldMod",
+	"description": "Типы мира: «Остров Смешариков» (рельеф по картам) и «Мир-океан».",
+	"authors": ["bogdan"],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.smeshariki.world.SmesharikiWorld"],
+		"client": ["com.smeshariki.world.SmesharikiWorldClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
