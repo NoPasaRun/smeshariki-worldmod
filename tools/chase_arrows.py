@@ -26,6 +26,9 @@ RADIUS = 20.0                   # покрывает ячейку сетки (п
 # урон вдвое меньше (половина сердечка), над рекой маркеров нет — там ждут бревно, а стоящего стрелы догоняют
 DENSITY = [0, 0, 0, 0, 0.3, 0.45, 0.5, 0.45, 0.3, 0, 0, 0]
 DAMAGE = 0.5
+# Строгость обстрела (до 2026-11-10 была в коде GameplayMod): стрелы только за торможение — медленнее MIN_SPEED блоков/с дольше GRACE тиков;
+# счётчик растёт до GRACE+SLOW_MARGIN и убывает на SLOW_RECOVERY за быстрый тик. Умолчания мода нейтральные, поэтому маркер несёт свои числа.
+MIN_SPEED, GRACE, SLOW_MARGIN, SLOW_RECOVERY = 5.0, 10, 10, 3
 RIVER_CLEAR = 12.0              # без маркеров ближе этого к берегу реки (полуширина русла + это)
 FRAME = (380, 615, -270, -80)   # где убирать прежние маркеры группы
 
@@ -98,6 +101,7 @@ for x, y, z, yaw in markers:
     c[b'Entities'][1][1].append({b'id': (8, b'gameplaymod:barrage'), b'Pos': (9, (6, [dbl(x), dbl(y), dbl(z)])), b'Motion': (9, (6, [dbl(0)]*3)),
         b'Rotation': (9, (5, [struct.pack('>f', 0.0)]*2)), b'UUID': (11, uuid.uuid4().bytes), b'Yaw': flt(yaw), b'Radius': flt(RADIUS), b'Damage': flt(DAMAGE),
         b'Density': (9, (5, [struct.pack('>f', float(d)) for d in DENSITY])),
+        b'MinSpeed': flt(MIN_SPEED), b'Grace': (3, struct.pack('>i', GRACE)), b'SlowMargin': (3, struct.pack('>i', SLOW_MARGIN)), b'SlowRecovery': (3, struct.pack('>i', SLOW_RECOVERY)),
         b'Group': (8, GROUP.encode())})
 regions = {}
 for (cx, cz), (p, nm, c) in touched.items():

@@ -121,3 +121,5 @@
 - Сверка после записи с расчётом: см. вывод; в игре не проверено (вид, размер, проходимость проёма).
 - Свет неба и приглушение (2026-11-10, из GameplayMod): `world/mixin/LightmapRenderStateExtractorMixin` (клиентский миксин, `smesharikiworld.mixins.json`, `defaultRequire 1`): `skyFactor` лайтмапы умножается на `SUN_BOOST` (6,25), `world/ViewLight` — публичный API приглушения для кат-сцен BehaviorMod (`set(strength, darkness)`). Старое описание в разделах про GameplayMod («Яркое солнце») относится к этому миксину.
 - Поток брёвен реки (2026-11-10): `tools/log_routes_dat.py` пишет теперь и параметры потока (`DEFAULT_FLOW` — ряды, сдвиги, паузы, бывшие зашитыми в GameplayMod `LogRiver`); `write(..., flow=None)` сохраняет у маршрута уже записанный поток, иначе берёт `DEFAULT_FLOW`.
+- Строгость обстрела погони (2026-11-10): `tools/barrage_fields.py <мир> [--write <копия>]` дописывает маркерам `gameplaymod:barrage` поля `MinSpeed` 5, `Grace` 10, `SlowMargin` 10, `SlowRecovery` 3 (и прежний `Density`, если его не было) — раньше это были константы и умолчания GameplayMod; `chase_arrows.py` теперь пишет их при расстановке. Повторный запуск ничего не меняет.
+
