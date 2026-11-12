@@ -1,21 +1,22 @@
 {
 	"schemaVersion": 1,
-	"id": "smesharikiworld",
+	"id": "worldmod",
 	"version": "${version}",
-	"name": "SmesharikiWorldMod",
-	"description": "Ландшафт и отображение: типы мира «Остров Смешариков» и «Мир-океан», шейдерпак Iris, яркий свет неба и приглушение света для кат-сцен.",
+	"name": "WorldMod",
+	"description": "Мир: ландшафт («Остров Смешариков», «Мир-океан»), шейдерпак Iris, свет неба и приглушение света кат-сцен, река с потоком брёвен (маршруты и поток).",
 	"authors": ["bogdan"],
 	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
-		"main": ["com.smeshariki.world.SmesharikiWorld"],
-		"client": ["com.smeshariki.world.SmesharikiWorldClient"]
+		"main": ["com.smeshariki.world.WorldMod"],
+		"client": ["com.smeshariki.world.WorldModClient"]
 	},
-	"mixins": [{ "config": "smesharikiworld.mixins.json", "environment": "client" }],
+	"mixins": [{ "config": "worldmod.mixins.json", "environment": "client" }],
 	"depends": {
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~26.2",
 		"java": ">=25",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"gameplaymod": "*"
 	}
 }

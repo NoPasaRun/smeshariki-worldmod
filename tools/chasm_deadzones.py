@@ -18,7 +18,7 @@ M_LO, M_HI, WALL, DOWN = 5, 9, 3, 3  # над дном: накрыть не ме
 SKIP = {'air', 'cave_air', 'void_air'}
 SOFT = {'vine', 'short_grass', 'tall_grass', 'fern', 'large_fern', 'water'}
 NOT_GROUND = SOFT | {'jungle_leaves', 'oak_leaves', 'spruce_leaves', 'gameplaymod:dark_veil', 'jungle_log', 'oak_log', 'spruce_log', 'cocoa', 'bamboo'}
-ZONE = {b'Rate': 4.0, b'Spread': 0.5, b'Damage': 2.0, b'Distance': 12.0, b'Speed': 1.8}
+ZONE = {}   # зона только убивает: полей стрельбы больше нет
 
 world = sys.argv[1]
 backup = sys.argv[sys.argv.index('--write') + 1] if '--write' in sys.argv else None

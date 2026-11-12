@@ -23,7 +23,7 @@ void main() {
 #ifdef GODRAYS
 	if (sunPosition.z < 0.0) {
 		float sunH = dot(normalize(sunPosition), normalize(upPosition));
-		float vis = smoothstep(0.0, 0.2, sunH);
+		float vis = smoothstep(0.0, 0.2, sunH) * (1.0 - RAIN_W);
 		vec4 c = gbufferProjection * vec4(sunPosition, 1.0);
 		vec2 suv = c.xy / c.w * 0.5 + 0.5;
 		vec2 dir = suv - texcoord;

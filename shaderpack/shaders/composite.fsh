@@ -86,8 +86,8 @@ float sdCell(vec3 q, vec3 b, vec4 ext) { // ext = (-x, +x, -z, +z) extension
 vec3 cloudEdgeColor(float sunH) {
 	float dd, gg, nn;
 	skyWeights(sunH, dd, gg, nn);
-	vec3 col = vec3(0.86, 0.89, 0.95);
-	col = mix(col, col * vec3(1.2, 0.80, 0.55), gg * 0.8);
+	vec3 col = mix(vec3(0.86, 0.89, 0.95), vec3(0.42, 0.45, 0.50), RAIN_W);
+	col = mix(col, col * vec3(1.2, 0.80, 0.55), gg * 0.8 * (1.0 - RAIN_W));
 	return mix(col, col * vec3(0.30, 0.36, 0.55), nn);
 }
 
@@ -99,7 +99,7 @@ vec3 addClouds(vec3 sky, vec3 dir, float sunH, vec3 Lw) {
 	float t1 = (yb + 16.0 - camY) / dir.y;
 	vec2 wind = vec2(frameTimeCounter * 2.0, frameTimeCounter * 0.7);
 	vec3 ro = vec3(cameraPosition.x - wind.x, camY, cameraPosition.z - wind.y);
-	float th = 0.74 - CLOUD_COVERAGE * 0.5;
+	float th = 0.74 - mix(CLOUD_COVERAGE, 1.4, RAIN_W) * 0.5; // rain: the layer closes up into overcast
 
 	vec2 p = ro.xz + dir.xz * t0;
 	vec2 cell = floor(p / CELL);
@@ -115,7 +115,7 @@ vec3 addClouds(vec3 sky, vec3 dir, float sunH, vec3 Lw) {
 		float tex = min(min(tn.x, tn.y), t1);
 		float dn = cellDensity(cell);
 		if (dn > th) {
-			float hh = 2.6 + 2.5 * hash21(cell + 3.3) + 3.5 * smoothstep(th, th + 0.2, dn);
+			float hh = 2.6 + 2.5 * hash21(cell + 3.3) + 3.5 * smoothstep(th, th + 0.2, dn) + 5.0 * RAIN_W * hash21(cell + 7.7);
 			vec3 ctr = vec3((cell.x + 0.5) * CELL, yb + hh, (cell.y + 0.5) * CELL);
 			vec3 b = vec3(CELL * 0.5, hh, CELL * 0.5);
 			vec4 ext = vec4(cellDensity(cell + vec2(-1.0, 0.0)) > th ? CR : 0.0, cellDensity(cell + vec2(1.0, 0.0)) > th ? CR : 0.0,
@@ -144,9 +144,14 @@ vec3 addClouds(vec3 sky, vec3 dir, float sunH, vec3 Lw) {
 				under *= 0.95 + 0.07 * hash21(cell + 9.1);
 				vec3 col = mix(under, vec3(1.0, 0.985, 0.96), smoothstep(0.25, 0.9, n.y));
 				col *= mix(0.88, 1.0, smoothstep(0.0, hh * 1.4, pos.y + hh));
+				// storm clouds: grey, dark bellies, tops barely lighter, no sun
+				vec3 storm = mix(vec3(0.33, 0.36, 0.41), vec3(0.55, 0.58, 0.63), smoothstep(0.3, 1.0, n.y) * 0.7) * mix(0.85, 1.0, dif);
+				storm *= 0.9 + 0.12 * hash21(cell + 9.1);
+				storm *= mix(0.82, 1.0, smoothstep(0.0, hh * 1.4, pos.y + hh));
+				col = mix(col, storm, RAIN_W);
 				float dd, gg, nn;
 				skyWeights(sunH, dd, gg, nn);
-				col = mix(col, col * vec3(1.2, 0.80, 0.55), gg * 0.8);
+				col = mix(col, col * vec3(1.2, 0.80, 0.55), gg * 0.8 * (1.0 - RAIN_W));
 				col = mix(col, col * vec3(0.30, 0.36, 0.55), nn);
 				col = mix(col, skyHorizon(sunH), smoothstep(160.0, 460.0, t));
 				float a = 1.0 - smoothstep(300.0, 470.0, t);
@@ -240,7 +245,7 @@ void main() {
 		if (texture(colortex2, texcoord).r > 0.5 && depth < texture(depthtex1, texcoord).r) {
 			float d1 = texture(depthtex1, texcoord).r;
 			float thick = d1 < 1.0 ? max(viewDist(texcoord, d1) - viewDist(texcoord, depth), 0.0) : 64.0;
-			float dayF = smoothstep(-0.1, 0.25, dot(normalize(sunPosition), normalize(upPosition)));
+			float dayF = smoothstep(-0.1, 0.25, dot(normalize(sunPosition), normalize(upPosition))) * (1.0 - 0.6 * RAIN_W);
 
 			// depth tint: clear at the shore, deeper blue further out
 			vec3 deep = vec3(0.03, 0.20, 0.34) * (0.3 + 0.7 * dayF);
@@ -254,7 +259,7 @@ void main() {
 			vec2 e = vec2(0.15, 0.0);
 			float h0 = waveH(wp, t);
 			vec2 grad = vec2(waveH(wp + e.xy, t) - h0, waveH(wp + e.yx, t) - h0) / e.x;
-			vec3 n = normalize(vec3(-grad.x * 0.05 * WATER_WAVES, 1.0, -grad.y * 0.05 * WATER_WAVES));
+			vec3 n = normalize(vec3(-grad.x * 0.05 * WATER_WAVES * (1.0 + 1.5 * RAIN_W), 1.0, -grad.y * 0.05 * WATER_WAVES * (1.0 + 1.5 * RAIN_W))); // rain ruffles the water
 
 			float cosT = clamp(dot(n, -vd), 0.0, 1.0);
 			float fres = 0.02 + 0.98 * pow(1.0 - cosT, 5.0);
@@ -293,12 +298,12 @@ void main() {
 			color = mix(color, refl, clamp(fres * WATER_REFLECT, 0.0, 0.9));
 			// sun glint
 			vec3 Lw = normalize(mat3(gbufferModelViewInverse) * normalize(sunPosition));
-			color += vec3(1.0, 0.88, 0.65) * pow(max(dot(r, Lw), 0.0), 250.0) * 2.5 * dayF;
+			color += vec3(1.0, 0.88, 0.65) * pow(max(dot(r, Lw), 0.0), 250.0) * 2.5 * dayF * (1.0 - RAIN_W);
 		}
 #endif
 
-		float haze = (1.0 - exp(-max(dist - 48.0, 0.0) * 0.004)) * 0.45 * HAZE;
-		color = mix(color, skyHorizon(dot(normalize(sunPosition), normalize(upPosition))), clamp(haze, 0.0, 0.6));
+		float haze = (1.0 - exp(-max(dist - mix(48.0, 16.0, RAIN_W), 0.0) * mix(0.004, 0.011, RAIN_W))) * mix(0.45, 0.7, RAIN_W) * HAZE;
+		color = mix(color, skyHorizon(dot(normalize(sunPosition), normalize(upPosition))), clamp(haze, 0.0, mix(0.6, 0.85, RAIN_W)));
 	} else if (depth >= 1.0 && isEyeInWater == 0) {
 		vec3 dir = normalize(mat3(gbufferModelViewInverse) * viewPos(texcoord, 1.0));
 		// the whole sky is drawn here (soft gradient, no band, no grey below the horizon); sun, moon and stars are kept from the game
@@ -308,6 +313,7 @@ void main() {
 		skyWeights(sunHs, dd, gg, nn);
 		float luma = dot(color, vec3(0.299, 0.587, 0.114));
 		float keep = smoothstep(mix(0.90, 0.28, nn), mix(0.98, 0.45, nn), luma);
+		keep *= 1.0 - RAIN_W; // the sun, moon and stars are behind the clouds
 		color = mix(skyGradient(dir, sunHs, Lw), color, keep);
 #ifdef CLOUDS
 		color = addClouds(color, dir, sunHs, Lw);

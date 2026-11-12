@@ -13,7 +13,7 @@ import net.fabricmc.loader.api.FabricLoader;
 /**
  * Карты мира «Остров Смешариков»: пять изображений (одно — верх породы над тоннелем реки) (1 пиксель = 1 блок): высоты (16 бит: 65535 = уровень моря, 0 = +250 блоков),
  * материалы (индексы 0 горы, 1 глубокая вода, 2 луг, 3 песок, 4 тропа, 5 мелководье, 6 джунгли), леса (0 нет, 1 лиственный, 2 хвойный,
- * 3 тропический) и глубина дна. Лежат в jar ({@code /island/*.png}); файлы из {@code config/buildmod_island/} имеют приоритет.
+ * 3 тропический) и глубина дна. Лежат в jar ({@code /island/*.png}); файлы из {@code data/worldmod/island/} имеют приоритет.
  * Мировая точка (0, 0) соответствует пикселю ({@link #OX}, {@link #OZ}) — середина лугов; за картой — глубокий океан.
  */
 public final class IslandMaps {
@@ -57,7 +57,7 @@ public final class IslandMaps {
 	}
 
 	private static int[] samples(String name) throws IOException {
-		Path override = FabricLoader.getInstance().getConfigDir().resolve("buildmod_island").resolve(name);
+		Path override = ModData.moved(ModData.config("buildmod_island"), ModData.dir().resolve("island")).resolve(name);
 		try (InputStream in = Files.exists(override) ? Files.newInputStream(override) : IslandMaps.class.getResourceAsStream("/island/" + name)) {
 			if (in == null) throw new IOException("нет " + name);
 			BufferedImage image = ImageIO.read(in);

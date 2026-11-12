@@ -43,3 +43,6 @@ option.CLOUDS=Облака
 option.CLOUDS.comment=Свои облака шейдера, обычные отключаются.
 option.CLOUD_COVERAGE=Облачность
 option.CLOUD_HEIGHT=Высота облаков
+option.RAIN_FX=Дождь: серое небо, тучи, свет
+option.RAIN_FX.comment=Во время дождя небо затягивает серыми тучами, свет тускнеет, вдали дымка, земля темнеет. Следует за дождём в игре плавно.
+option.RAIN_GLOOM=Мрачность дождя

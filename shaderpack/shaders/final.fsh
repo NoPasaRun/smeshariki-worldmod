@@ -61,15 +61,15 @@ void main() {
 		float sunH = dot(normalize(sunPosition), normalize(upPosition));
 		float night = 1.0 - smoothstep(-0.30, -0.02, sunH);
 		float golden = (1.0 - smoothstep(0.03, 0.30, sunH)) * (1.0 - night);
-		c *= mix(vec3(1.0), vec3(1.07, 0.97, 0.86), golden * 0.7);
+		c *= mix(vec3(1.0), vec3(1.07, 0.97, 0.86), golden * 0.7 * (1.0 - RAIN_W));
 		c *= mix(vec3(1.0), vec3(0.88, 0.95, 1.10), night * 0.6);
 	}
 #endif
 
 	float luma = dot(c, vec3(0.299, 0.587, 0.114));
-	c = mix(vec3(luma), c, SATURATION);
-	c = (c - 0.5) * CONTRAST + 0.5;
-	c *= vec3(1.0 + 0.12 * WARMTH, 1.0 + 0.03 * WARMTH, 1.0 - 0.10 * WARMTH);
+	c = mix(vec3(luma), c, mix(SATURATION, 0.78, RAIN_W)); // rain washes the colours out
+	c = (c - 0.5) * mix(CONTRAST, 0.97, RAIN_W) + 0.5;
+	c *= mix(vec3(1.0 + 0.12 * WARMTH, 1.0 + 0.03 * WARMTH, 1.0 - 0.10 * WARMTH), vec3(0.97, 1.0, 1.04), RAIN_W);
 #ifdef TONEMAP
 	c = shoulder(max(c, 0.0));
 #endif

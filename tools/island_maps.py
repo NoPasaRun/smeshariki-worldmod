@@ -458,7 +458,7 @@ print('done', round(time.time()-t0, 1), 'max h', Hf.max(), Wc, Hc)
 
 # ---------- данные для мода (индексы, 8 бит): src/main/resources/island/*.png
 import os
-R = '/home/bogdan/Документы/IdeaProjects/SmesharikiProject/SmesharikiWorldMod/src/main/resources/island/'
+R = '/home/bogdan/Документы/IdeaProjects/SmesharikiProject/WorldMod/src/main/resources/island/'
 os.makedirs(R, exist_ok=True)
 solid = (Hf > 0.5) & (Mf != 1) & (Mf != 5) & (Mf != 7)
 dist = distance_transform_edt(~solid)

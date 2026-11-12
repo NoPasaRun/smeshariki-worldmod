@@ -29,6 +29,7 @@ void main() {
 	vec4 albedo = texture(gtexture, texcoord) * glcolor;
 	if (albedo.a < alphaTestRef) discard;
 	vec3 lm = texture(lightmap, lmcoord).rgb;
+	albedo.rgb *= 1.0 - 0.22 * WET_W * smoothstep(0.5, 1.0, lmcoord.y); // wet ground and leaves are darker (only where the rain reaches)
 	// face normal from interpolated positions: exact (the depth buffer would be noisy at grazing angles)
 	vec3 dp1 = dFdx(viewPosV);
 	vec3 dp2 = dFdy(viewPosV);
@@ -63,7 +64,7 @@ void main() {
 
 		float sunVis = smoothstep(0.02, 0.25, dot(L, normalize(upPosition))) * (sunAngle < 0.5 ? 1.0 : 0.15);
 		float skyW = smoothstep(0.3, 0.9, lmcoord.y);     // no sun highlights in caves and under roofs
-		float k = sunVis * skyW;
+		float k = sunVis * skyW * (1.0 - RAIN_W);
 
 		// relief: the normal map changes how the sun lies on the surface relative to the flat face
 		float ndlG = max(dot(Ng, L), 0.0);

@@ -44,6 +44,19 @@ const bool shadowHardwareFiltering = false;
 #define CLOUD_COVERAGE 0.5 //[0.3 0.4 0.5 0.6]
 #define CLOUD_HEIGHT 230.0 //[180.0 230.0 280.0]
 
+// ---- rain: grey overcast sky, heavy clouds, dim light, haze, wet ground (follows the game's rain level smoothly)
+#define RAIN_FX
+#define RAIN_GLOOM 1.0 //[0.5 0.75 1.0]
+uniform float rainStrength;
+uniform float wetness;
+#ifdef RAIN_FX
+#define RAIN_W (clamp(smoothstep(0.0, 1.0, rainStrength) * RAIN_GLOOM, 0.0, 1.0))
+#define WET_W (clamp(wetness * RAIN_GLOOM, 0.0, 1.0))
+#else
+#define RAIN_W 0.0
+#define WET_W 0.0
+#endif
+
 // ---- PBR maps of the resource pack (LabPBR: _s smoothness, _n normals): relief and specular highlights
 #define PBR
 #define PBR_BUMP 0.8 //[0.4 0.6 0.8 1.0 1.4]

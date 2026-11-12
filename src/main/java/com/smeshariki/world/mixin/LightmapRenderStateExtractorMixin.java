@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.smeshariki.world.ViewLight;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightmapRenderStateExtractor;
 import net.minecraft.client.renderer.state.LightmapRenderState;
 
@@ -31,6 +32,12 @@ public class LightmapRenderStateExtractorMixin {
 	/** Какая доля рассеянного света остаётся в тени в режиме подсказки: при «светло» и при «самом тёмном». */
 	@Unique
 	private static final float AMBIENT_LIGHT = 0.9f, AMBIENT_DARK = 0.3f;
+	/**
+	 * Во сколько раз усиливается свет неба в сильный дождь (между этим и {@link #SUN_BOOST} — по уровню дождя). Ваниль в дождь сама снижает свет неба, но шестикратное усиление
+	 * заставляет его упереться в максимум и дождь не темнит мир вовсе; в дождь усиление почти снимается, и под открытым небом становится серо и тускло, а в тени всё ещё видно.
+	 */
+	@Unique
+	private static final float RAIN_BOOST = 1.5f;
 	/** Что мы сами записали в {@code skyFactor} и {@code ambientColor} в прошлый раз и из чего: если там то же, значение не пересчитывалось и применять к нему поверх нельзя. */
 	@Unique
 	private float smesharikiworld$lastBoosted = Float.NaN, smesharikiworld$lastBase;
@@ -42,7 +49,10 @@ public class LightmapRenderStateExtractorMixin {
 	@Inject(method = "extract", at = @At("RETURN"))
 	private void smesharikiworld$brighterSun(LightmapRenderState state, float partialTick, CallbackInfo ci) {
 		float dark = ViewLight.darkness(), strength = ViewLight.strength();
-		float key = strength * 2 + dark;
+		float rain = 0f;
+		var level = Minecraft.getInstance().level;
+		if (level != null) rain = Math.max(0f, Math.min(1f, level.getRainLevel(partialTick)));
+		float key = strength * 2 + dark + rain * 4;
 		boolean fresh = state.skyFactor != smesharikiworld$lastBoosted;
 		// ваниль пересчитала значения: берём новые за основу; иначе основа — то, из чего мы получили прошлый результат
 		float base = fresh ? state.skyFactor : smesharikiworld$lastBase;
@@ -51,7 +61,8 @@ public class LightmapRenderStateExtractorMixin {
 		if (!state.needsUpdate && fresh) return;
 		// множители перемножаются, а не складываются: яркость на глаз меняется кратно, и «светло» с «тёмным» не сливаются
 		float guide = (float) (GUIDE_LIGHT * Math.pow(GUIDE_DARK / GUIDE_LIGHT, dark));
-		float boost = (float) (SUN_BOOST * Math.pow(guide / SUN_BOOST, strength));
+		float sun = (float) (SUN_BOOST * Math.pow(RAIN_BOOST / SUN_BOOST, rain)); // в дождь дневное усиление слабее
+		float boost = (float) (sun * Math.pow(guide / sun, strength));
 		state.skyFactor = base * boost;
 		float shade = AMBIENT_LIGHT + (AMBIENT_DARK - AMBIENT_LIGHT) * dark;
 		Vector3fc dimmed = strength > 0f ? new Vector3f(ambient).mul(1f + (shade - 1f) * strength) : ambient;
