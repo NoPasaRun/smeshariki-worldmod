@@ -80,7 +80,9 @@ def read_chunk(reg, cx, cz):
 
 
 def write_sections(c, vol, names, changed_y, drop_light):
-    """Перезаписать секции, где менялись блоки (changed_y — индексы секций 0..23)."""
+    """Перезаписать секции, где менялись блоки (changed_y — индексы секций 0..23). drop_light: свет удаляется и isLightOn=0,
+    иначе игра считает свет готовым и чанк остаётся тёмным (2026-11-16, расширение острова)."""
+    if drop_light: c[b'isLightOn'] = (1, b'\x00')
     for sec in c[b'sections'][1][1]:
         y = int.from_bytes(sec[b'Y'][1], 'big', signed=True); bs = sec.get(b'block_states')
         if drop_light:

@@ -7,6 +7,9 @@
 #define CONTRAST 1.05 //[0.9 1.0 1.05 1.1 1.2]
 #define VIGNETTE 0.25 //[0.0 0.15 0.25 0.4 0.6]
 #define HAZE 1.0 //[0.0 0.5 1.0 1.5 2.0]
+// night: beyond NIGHT_VIS blocks it is (almost) black, only light sources shine through faintly; 0 = off
+#define NIGHT_VIS 10 //[0 6 8 10 12 16 24 32]
+#define NIGHT_DEPTH 0.96 //[0.8 0.9 0.96 1.0]
 
 // ---- shadows (second geometry pass from the sun: the most expensive part)
 //#define SHADOWS
@@ -27,6 +30,7 @@ const bool shadowHardwareFiltering = false;
 
 // ---- light and look
 #define COLOR_LIGHT
+#define LAMP_GLOW 0.4 //[0.0 0.2 0.4 0.6 1.0 1.5 2.0 3.0]
 #define TIME_TINT
 #define TONEMAP
 #define OUTLINE_STRENGTH 0.25 //[0.0 0.15 0.25 0.4 0.6]

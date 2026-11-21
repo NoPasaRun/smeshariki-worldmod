@@ -304,6 +304,18 @@ void main() {
 
 		float haze = (1.0 - exp(-max(dist - mix(48.0, 16.0, RAIN_W), 0.0) * mix(0.004, 0.011, RAIN_W))) * mix(0.45, 0.7, RAIN_W) * HAZE;
 		color = mix(color, skyHorizon(dot(normalize(sunPosition), normalize(upPosition))), clamp(haze, 0.0, mix(0.6, 0.85, RAIN_W)));
+#if NIGHT_VIS > 0
+		{
+			// night darkness by distance: the darkness starts at 40 % of NIGHT_VIS and is full at NIGHT_VIS
+			float nsH = dot(normalize(sunPosition), normalize(upPosition));
+			float nightW = 1.0 - smoothstep(-0.25, 0.0, nsH);
+			float far = smoothstep(float(NIGHT_VIS) * 0.4, float(NIGHT_VIS), dist);
+			// lamps and what they light are seen from any distance: emissive blocks fully, lit surfaces by block light level (about 5 and up)
+			vec3 ids = texture(colortex2, texcoord).rgb;
+			float lit = max(step(0.5, ids.g), smoothstep(0.3, 0.75, ids.b));
+			color = mix(color, vec3(0.004, 0.006, 0.012), nightW * far * NIGHT_DEPTH * (1.0 - lit));
+		}
+#endif
 	} else if (depth >= 1.0 && isEyeInWater == 0) {
 		vec3 dir = normalize(mat3(gbufferModelViewInverse) * viewPos(texcoord, 1.0));
 		// the whole sky is drawn here (soft gradient, no band, no grey below the horizon); sun, moon and stars are kept from the game

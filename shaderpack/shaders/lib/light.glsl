@@ -10,3 +10,13 @@ vec3 lightTint(vec2 lm, float sunH) {
 	float torchW = smoothstep(0.0, 1.0, lm.x) * (1.0 - lm.y * (1.0 - night) * 0.85);
 	return mix(sky, torch, clamp(torchW, 0.0, 1.0));
 }
+
+// Overexposure near lamps: multiplier > 1 for strong block light (levels ~12..15), fading out in open daylight.
+// Colour above 1 clips to white in the 8-bit target: the texture "burns out" right next to the lamp.
+float lampGlow(vec2 lmc, float sunH) {
+	float night = 1.0 - smoothstep(-0.30, -0.02, sunH);
+	float w = smoothstep(0.70, 0.97, lmc.x);
+	w *= w;
+	w *= 1.0 - smoothstep(0.5, 1.0, lmc.y) * (1.0 - night) * 0.85;
+	return 1.0 + LAMP_GLOW * w;
+}

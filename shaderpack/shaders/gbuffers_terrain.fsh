@@ -21,7 +21,7 @@ in vec3 viewPosV;
 
 /* RENDERTARGETS: 0,2,5,6 */
 layout(location = 0) out vec4 outColor;
-layout(location = 1) out vec4 outId;   // r = water, g = emissive (for bloom)
+layout(location = 1) out vec4 outId;   // r = water, g = emissive (for bloom), b = block light
 layout(location = 3) out vec4 outNormal; // view-space face normal for shadows and AO (a = 1: valid)
 layout(location = 2) out vec4 outSpec; // sun specular highlight, added in composite with the shadow applied (stored halved)
 
@@ -40,6 +40,7 @@ void main() {
 #ifdef COLOR_LIGHT
 	lm *= lightTint(lmcoord, sunH);
 #endif
+	lm *= lampGlow(lmcoord, sunH); // overexposure next to lamps
 	float em = emissive;
 	vec3 spec = vec3(0.0);
 
@@ -91,7 +92,7 @@ void main() {
 
 	albedo.rgb *= mix(lm, vec3(1.0), em * 0.5);
 	outColor = albedo;
-	outId = vec4(isWater, em, 0.0, 1.0);
+	outId = vec4(isWater, em, lmcoord.x, 1.0); // b = block light: the night darkness spares lamps and what they light
 	outSpec = vec4(spec * 0.5, 1.0);
 	outNormal = vec4(Ng * 0.5 + 0.5, 1.0);
 }

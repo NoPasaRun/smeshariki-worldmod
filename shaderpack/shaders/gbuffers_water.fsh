@@ -23,9 +23,10 @@ void main() {
 #ifdef COLOR_LIGHT
 	lm *= lightTint(lmcoord, sunH);
 #endif
+	lm *= lampGlow(lmcoord, sunH); // overexposure next to lamps
 	color.rgb *= lm;
 	if (color.a < alphaTestRef) discard;
 	if (isWater > 0.5) color.a *= WATER_OPACITY; // clearer water: the bed shows through
 	outColor = color;
-	outId = vec4(isWater, 0.0, 0.0, 1.0);
+	outId = vec4(isWater, 0.0, lmcoord.x, 1.0);
 }
